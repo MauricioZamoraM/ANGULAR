@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-reportar-pago',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule,CommonModule],
   templateUrl: './reportar-pago.component.html',
   styleUrls: ['./reportar-pago.component.css']
 })
@@ -18,6 +19,8 @@ export class ReportarPagoComponent {
     paymentDate: '',
     amountPaid: null as number | null
   };
+
+  operations: string[] = []; // Arreglo para los valores de operación
 
   isFormDisabled = false; // Estado para bloquear los campos después del envío
 
@@ -83,11 +86,21 @@ export class ReportarPagoComponent {
     this.http.post(apiUrl, requestBody).subscribe({
       next: (response: any) => {
         console.log('Respuesta de la API:', response);
-        // Aquí puedes manejar la respuesta si lo deseas (como mostrar un mensaje o actualizar el formulario)
 
+        // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
         if (response.success && response.data && response.data.length > 0) {
           this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
-        } 
+          
+          // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
+          this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
+          
+          // Si solo hay un valor, lo asignamos directamente al campo de operación
+          if (this.operations.length === 1) {
+            this.formData.operation = this.operations[0];
+          }
+        } else {
+          console.error('No se encontró valor de obligación');
+        }
       },
       error: (error) => {
         console.error('❌ Error al consultar la cédula:', error);

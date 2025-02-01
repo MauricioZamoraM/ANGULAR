@@ -1,14 +1,15 @@
-import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { ReportarPagoComponent } from './pages/reportar-pago.component'; // ✅ Import normal
+import { ReportarPagoComponent } from './pages/reportar-pago.component';
 import { SharedModule } from "../../sharedComponents/shared.module";
 
 @NgModule({
+  declarations: [ReportarPagoComponent],
   imports: [
-    CommonModule,
+    CommonModule, // ✅ Asegura que esto esté aquí
     FormsModule,
     HttpClientModule,
     RouterModule.forChild([
@@ -20,4 +21,4 @@ import { SharedModule } from "../../sharedComponents/shared.module";
     SharedModule
   ],
 })
-export class ReportarPagoModule {}
+export class ReportarPagoModule { }
