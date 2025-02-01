@@ -4,7 +4,7 @@
     <!-- Tipo Identificación -->
     <div class="form-group">
       <label for="identificationType">Tipo Identificación</label>
-      <select id="identificationType" class="form-control" name="identificationType" [(ngModel)]="formData.identificationType" required>
+      <select id="identificationType" class="form-control" name="identificationType" [(ngModel)]="formData.identificationType" required [disabled]="isFormDisabled">
         <option value="NACIONAL">NACIONAL</option>
         <option value="INTERNACIONAL">INTERNACIONAL</option>
       </select>
@@ -13,13 +13,13 @@
     <!-- Identificación -->
     <div class="form-group">
       <label for="identification">Identificación</label>
-      <input type="text" id="identification" class="form-control" name="identification" [(ngModel)]="formData.identification" required />
+      <input type="text" id="identification" class="form-control" name="identification" [(ngModel)]="formData.identification" required [disabled]="isFormDisabled" />
     </div>
 
     <!-- Operación -->
     <div class="form-group">
       <label for="operation">Operación</label>
-      <select id="operation" class="form-control" name="operation" [(ngModel)]="formData.operation" required>
+      <select id="operation" class="form-control" name="operation" [(ngModel)]="formData.operation" required [disabled]="isFormDisabled">
         <option value="GLP-5632">GLP-5632</option>
         <option value="ABC-1234">ABC-1234</option>
       </select>
@@ -28,23 +28,22 @@
     <!-- Número de referencia -->
     <div class="form-group">
       <label for="referenceNumber">Número de referencia</label>
-      <input type="text" id="referenceNumber" class="form-control" name="referenceNumber" [(ngModel)]="formData.referenceNumber" required />
+      <input type="text" id="referenceNumber" class="form-control" name="referenceNumber" [(ngModel)]="formData.referenceNumber" required [disabled]="isFormDisabled" />
     </div>
 
     <!-- Fecha de Pago -->
     <div class="form-group">
       <label for="paymentDate">Fecha de Pago</label>
-      <input type="date" id="paymentDate" class="form-control" name="paymentDate" [(ngModel)]="formData.paymentDate" required />
+      <input type="date" id="paymentDate" class="form-control" name="paymentDate" [(ngModel)]="formData.paymentDate" required [disabled]="isFormDisabled" />
     </div>
 
     <!-- Monto pagado -->
     <div class="form-group">
       <label for="amountPaid">Monto pagado</label>
-      <input type="number" id="amountPaid" class="form-control" name="amountPaid" [(ngModel)]="formData.amountPaid" required />
+      <input type="number" id="amountPaid" class="form-control" name="amountPaid" [(ngModel)]="formData.amountPaid" required [disabled]="isFormDisabled" />
     </div>
 
-    <div class="form-group"></div>
     <!-- Botón Guardar -->
-    <button type="submit" class="btn btn-success" [disabled]="paymentForm.invalid">ENVIAR</button>
+    <button type="submit" class="btn btn-success" [disabled]="paymentForm.invalid || isFormDisabled">ENVIAR</button>
   </form>
 </div>

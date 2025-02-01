@@ -16,34 +16,50 @@ export class ReportarPagoComponent {
     operation: '',
     referenceNumber: '',
     paymentDate: '',
-    amountPaid: null
+    amountPaid: null as number | null
   };
 
-  constructor(private http: HttpClient) {} // ✅ Inyecta HttpClient
+  isFormDisabled = false; // Estado para bloquear los campos después del envío
+
+  constructor(private http: HttpClient) {}
 
   onSubmit() {
+    if (this.isFormDisabled) return; // Evita que se reenvíe si ya está deshabilitado
+
     const apiUrl = 'http://localhost:5154/ReportePagos/MC';
 
-    // 🔹 Construir el objeto de la petición según el formato esperado por la API
     const requestBody = {
       IDPais: 1,
-      IDCredito: this.formData.operation, // 🔄 Se usa el valor de "Operación"
-      MontoPago: (this.formData.amountPaid ?? 0).toFixed(2), // 🔄 Formato de dos decimales
-      FechaPago: new Date(this.formData.paymentDate).toLocaleDateString('es-ES'), // 🔄 Formato "dd/MM/yyyy"
-      LugarDeposito: "INSTACREDIT", // 🔄 Se mantiene fijo
-      PuntoPago: "PRUEBA A3C", // 🔄 Se mantiene fijo
-      NoComprobante: this.formData.referenceNumber // 🔄 Número de referencia
+      IDCredito: this.formData.operation || 'SIN_ID',
+      MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
+      FechaPago: this.formData.paymentDate
+        ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
+        : '01/01/2024',
+      LugarDeposito: "INSTACREDIT",
+      PuntoPago: "PRUEBA A3C",
+      NoComprobante: this.formData.referenceNumber || 'SIN_COMPROBANTE'
     };
 
-    // 🔹 Enviar la petición POST con HttpClient
     this.http.post(apiUrl, requestBody).subscribe({
-      next: (response) => {
-        console.log('✅ Pago reportado con éxito:', response);
-        alert('Pago reportado correctamente');
+      next: () => {
+        alert('✅ Pago reportado correctamente');
+
+        // 🔄 Limpia los campos después del envío
+        this.formData = {
+          identificationType: '',
+          identification: '',
+          operation: '',
+          referenceNumber: '',
+          paymentDate: '',
+          amountPaid: null
+        };
+
+        // 🔒 Deshabilita el formulario para evitar reenvíos
+        this.isFormDisabled = true;
       },
       error: (error) => {
         console.error('❌ Error al reportar pago:', error);
-        alert('Error al reportar el pago');
+        alert('Error al reportar el pago. Intente de nuevo.');
       }
     });
   }
