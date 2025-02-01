@@ -1,0 +1,20 @@
+<div class="input-group">
+    <input
+      type="date"
+      class="form-control"
+      [(ngModel)]="selectedDate"
+      [min]="minDate"
+      [max]="maxDate"
+      (change)="onDateChange($event)"
+      aria-label="Date"
+    />
+  </div>
+  
+  <!-- Ejemplo de uso:
+    <app-date-input
+      [(selectedDate)]="date"
+      [minDate]="'2023-01-01'"
+      [maxDate]="'2023-12-31'">
+    </app-date-input>
+  -->
+  

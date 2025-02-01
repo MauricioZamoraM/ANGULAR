@@ -1,0 +1,20 @@
+<table class="table table-striped">
+    <thead>
+      <tr>
+        <th *ngFor="let column of columns">{{ column.header }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let row of data">
+        <td *ngFor="let column of columns">{{ row[column.field] }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <!-- Ejemplo de uso:
+    <app-data-table
+      [columns]="[{ header: 'Name', field: 'name' }, { header: 'Age', field: 'age' }]"
+      [data]="[{ name: 'John', age: 30 }, { name: 'Jane', age: 25 }]">
+    </app-data-table>
+  -->
+  

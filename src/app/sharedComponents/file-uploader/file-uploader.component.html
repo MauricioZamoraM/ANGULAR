@@ -1,0 +1,16 @@
+<div class="mb-3">
+    <input
+      type="file"
+      class="form-control"
+      [accept]="acceptedTypes"
+      (change)="onFileSelected($event)"
+    />
+  </div>
+  
+  <!-- Ejemplo de uso:
+    <app-file-uploader
+      [acceptedTypes]="'.pdf,.docx'"
+      (fileSelected)="handleFileSelected($event)">
+    </app-file-uploader>
+  -->
+  

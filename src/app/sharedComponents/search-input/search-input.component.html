@@ -1,0 +1,18 @@
+<div class="input-group">
+    <input
+      type="text"
+      class="form-control"
+      placeholder="Search..."
+      [(ngModel)]="searchTerm"
+      (keyup.enter)="onSearch()"
+      aria-label="Search"
+    />
+    <button class="btn btn-primary" (click)="onSearch()" type="button">
+      Search
+    </button>
+  </div>
+  
+
+
+  <!-- USO DEL COMPONENTE
+  <app-search-input [(searchTerm)]="query" (search)="handleSearch($event)"></app-search-input> -->

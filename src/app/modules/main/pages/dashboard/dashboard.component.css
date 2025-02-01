@@ -1,0 +1,105 @@
+/* Fondo con un degradado oscuro para el menú lateral */
+.sidebar {
+  background: linear-gradient(135deg, #1f2a48, #2b3a5e); /* Fondo con degradado para un efecto moderno */
+  height: 100vh; /* Asegura que el menú lateral ocupe toda la altura de la pantalla */
+  margin: 0;
+  padding: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.1); /* Línea sutil para separar el menú del contenido */
+}
+
+/* Estilo de la sección del logo en el menú lateral */
+.sidebar-logo {
+  background: #1f2a48;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* Línea para separar el logo del menú */
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.sidebar img {
+  width: 150px; /* Ancho de la imagen para asegurar que sea rectangular */
+  max-width: 100%;
+  border-radius: 8px; /* Suaviza las esquinas de la imagen */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Sombra sutil para darle un efecto flotante */
+  margin-bottom: 1rem;
+}
+
+/* Estilo de los enlaces del menú */
+.nav-link {
+  display: flex;
+  align-items: center;
+  color: #d4d8e2 !important; /* Texto claro para buen contraste */
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.1); /* Fondo sutil al pasar el mouse */
+  color: #ffffff !important; /* Texto blanco al pasar el mouse */
+}
+
+.nav-item + .nav-item {
+  margin-top: 0.5rem; /* Espaciado entre opciones de menú */
+}
+
+/* Cabecera con un diseño suave */
+.header {
+  background: linear-gradient(135deg, #1f2a48, #2b3a5e); /* Fondo con degradado para la cabecera */
+  height: 72.5px; /* Altura consistente */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Sombra suave */
+  color: #ffffff;
+  margin: 0;
+}
+
+/* Título de la cabecera */
+.header h4 {
+  color: #e0e0e0; /* Tono claro para el título */
+}
+
+/* Icono de usuario en la cabecera */
+.user-icon {
+  color: #e0e0e0;
+  cursor: pointer;
+}
+
+/* Fondo y diseño del área de contenido */
+.flex-grow-1 {
+  height: 100vh; /* Asegura que el contenido principal ocupe toda la altura */
+  overflow-y: auto; /* Permite scroll si el contenido es más largo que la pantalla */
+}
+
+/* Estilo del contenido principal */
+main {
+  background: #f4f7fb; /* Fondo claro para el área de contenido */
+  padding-top: 1rem;
+  margin: 0;
+  height: calc(100vh - 72.5px); /* Ajusta la altura para que considere la altura de la cabecera */
+}
+
+/* Tarjeta translúcida para contenido */
+.card-glass {
+  background: rgba(31, 42, 72, 0.7); /* Fondo translúcido */
+  backdrop-filter: blur(10px); /* Desenfoque para un efecto elegante */
+  border-radius: 16px; /* Bordes suavizados */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Sombra para dar profundidad */
+  color: #e0e0e0; /* Texto claro */
+  padding: 1.5rem;
+}
+
+/* Títulos y texto de la tarjeta */
+.card-glass h5 {
+  color: #d4d8e2; /* Título de la tarjeta en un tono claro */
+}
+
+.card-glass p {
+  color: #d4d8e2; /* Texto claro para contenido */
+}
+
+.card-glass .text-muted {
+  color: #a3a9b8 !important; /* Texto gris para detalles */
+}
+
+/* Transiciones para una experiencia fluida */
+.transition {
+  transition: all 0.3s ease-in-out;
+}

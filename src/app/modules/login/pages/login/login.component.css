@@ -1,0 +1,136 @@
+.animated-background {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: linear-gradient(135deg, #1f2a48, #233b67); /* Degradado en tonos azul oscuro */
+    overflow: hidden;
+  }
+  
+  .shape {
+    position: absolute;
+    background: rgba(173, 216, 230, 0.3); /* Azul claro con transparencia */
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1); /* Sombra para un efecto flotante */
+    border-radius: 20%; /* Variación de forma, círculos suavizados */
+    animation: float 30s infinite ease-in-out;
+    opacity: 0.8;
+  }
+  
+  .shape-1 {
+    width: 120px;
+    height: 120px;
+    top: 10%;
+    left: 15%;
+    animation-duration: 20s;
+    animation-delay: -5s;
+  }
+  
+  .shape-2 {
+    width: 100px;
+    height: 100px;
+    top: 40%;
+    left: 70%;
+    animation-duration: 25s;
+    animation-delay: -2s;
+  }
+  
+  .shape-3 {
+    width: 150px;
+    height: 150px;
+    top: 60%;
+    left: 5%;
+    animation-duration: 28s;
+    animation-delay: -3s;
+  }
+  
+  .shape-4 {
+    width: 90px;
+    height: 90px;
+    top: 75%;
+    left: 55%;
+    animation-duration: 22s;
+    animation-delay: -7s;
+  }
+  
+  .shape-5 {
+    width: 130px;
+    height: 130px;
+    top: 20%;
+    left: 85%;
+    animation-duration: 32s;
+    animation-delay: -10s;
+  }
+  
+  .shape-6 {
+    width: 160px;
+    height: 160px;
+    top: 50%;
+    left: 25%;
+    animation-duration: 27s;
+    animation-delay: -4s;
+  }
+  
+  .shape-7 {
+    width: 110px;
+    height: 110px;
+    top: 15%;
+    left: 50%;
+    animation-duration: 24s;
+    animation-delay: -8s;
+  }
+  
+  .shape-8 {
+    width: 140px;
+    height: 140px;
+    top: 70%;
+    left: 15%;
+    animation-duration: 26s;
+    animation-delay: -6s;
+  }
+  
+  .shape-9 {
+    width: 100px;
+    height: 100px;
+    top: 30%;
+    left: 90%;
+    animation-duration: 22s;
+    animation-delay: -5s;
+  }
+  
+  .shape-10 {
+    width: 120px;
+    height: 120px;
+    top: 80%;
+    left: 40%;
+    animation-duration: 30s;
+    animation-delay: -9s;
+  }
+  
+  @keyframes float {
+    0% {
+      transform: translateY(0) translateX(0);
+    }
+    25% {
+      transform: translateY(-20px) translateX(30px);
+    }
+    50% {
+      transform: translateY(30px) translateX(-20px);
+    }
+    75% {
+      transform: translateY(-15px) translateX(15px);
+    }
+    100% {
+      transform: translateY(0) translateX(0);
+    }
+  }
+  
+  /* Estilos del login para un aspecto limpio y elegante */
+  .card {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+  }
+  
+  .card-title {
+    color: #233b67;
+  }
+  

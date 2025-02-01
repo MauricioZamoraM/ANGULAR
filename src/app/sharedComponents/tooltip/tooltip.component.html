@@ -1,0 +1,20 @@
+<span class="position-relative" [ngStyle]="{ 'cursor': 'pointer' }" (mouseenter)="show()" (mouseleave)="hide()">
+    <ng-content></ng-content>
+    <div
+      class="tooltip bs-tooltip-top"
+      [ngClass]="{ 'show': isVisible }"
+      [ngStyle]="{ 'top': position === 'top' ? '-100%' : 'auto', 'left': '50%', 'transform': 'translateX(-50%)' }"
+      role="tooltip">
+      <div class="tooltip-arrow"></div>
+      <div class="tooltip-inner">
+        {{ text }}
+      </div>
+    </div>
+  </span>
+  
+  <!-- Ejemplo de uso:
+    <app-tooltip [text]="'This is a tooltip!'" [position]="'top'">
+      Hover over me
+    </app-tooltip>
+  -->
+  

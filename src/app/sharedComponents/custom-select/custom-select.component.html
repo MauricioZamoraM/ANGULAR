@@ -1,0 +1,12 @@
+<select class="form-select" [(ngModel)]="selectedValue" (change)="onSelectionChange($event)">
+    <option *ngFor="let option of options" [value]="option.value">
+      {{ option.label }}
+    </option>
+  </select>
+
+
+<!-- EJEMPLO DE USO
+<app-custom-select
+  [options]="selectOptions"
+  [(selectedValue)]="selectedOption">
+</app-custom-select> -->

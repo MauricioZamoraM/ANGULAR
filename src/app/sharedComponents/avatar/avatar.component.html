@@ -1,0 +1,24 @@
+<div class="avatar" [ngStyle]="{ 'width': size + 'px', 'height': size + 'px', 'border-radius': borderRadius }">
+    <img *ngIf="src; else placeholder" [src]="src" [alt]="alt" class="img-fluid rounded-circle" />
+    <ng-template #placeholder>
+      <div class="d-flex justify-content-center align-items-center bg-secondary text-white"
+           [ngStyle]="{ 'width': '100%', 'height': '100%' }">
+        {{ initials }}
+      </div>
+    </ng-template>
+  </div>
+  
+  <!-- Ejemplo de uso:
+    <app-avatar
+      [src]="'https://example.com/avatar.jpg'"
+      [alt]="'User Avatar'"
+      [size]="100"
+      [borderRadius]="'50%'">
+    </app-avatar>
+  
+    <app-avatar
+      [size]="50"
+      [initials]="'JD'">
+    </app-avatar>
+  -->
+  

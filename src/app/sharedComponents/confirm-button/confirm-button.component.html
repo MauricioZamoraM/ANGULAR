@@ -1,0 +1,12 @@
+<button class="btn btn-danger" (click)="confirm()" [disabled]="isDisabled">
+    {{ buttonText }}
+  </button>
+  
+  <!-- Ejemplo de uso:
+    <app-confirm-button
+      [buttonText]="'Delete'"
+      [isDisabled]="false"
+      (confirmEvent)="handleDelete()">
+    </app-confirm-button>
+  -->
+  
