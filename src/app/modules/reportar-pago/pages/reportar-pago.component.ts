@@ -84,6 +84,10 @@ export class ReportarPagoComponent {
       next: (response: any) => {
         console.log('Respuesta de la API:', response);
         // Aquí puedes manejar la respuesta si lo deseas (como mostrar un mensaje o actualizar el formulario)
+
+        if (response.success && response.data && response.data.length > 0) {
+          this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
+        } 
       },
       error: (error) => {
         console.error('❌ Error al consultar la cédula:', error);
