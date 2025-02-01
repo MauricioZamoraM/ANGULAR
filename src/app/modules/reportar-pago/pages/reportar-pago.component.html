@@ -13,7 +13,7 @@
     <!-- Identificación -->
     <div class="form-group">
       <label for="identification">Identificación</label>
-      <input type="text" id="identification" class="form-control" name="identification" [(ngModel)]="formData.identification" required [disabled]="isFormDisabled" />
+      <input type="text" id="identification" class="form-control" name="identification" [(ngModel)]="formData.identification" required [disabled]="isFormDisabled" (focusout)="onIdentificationFocusOut()"/>
     </div>
 
     <!-- Operación -->

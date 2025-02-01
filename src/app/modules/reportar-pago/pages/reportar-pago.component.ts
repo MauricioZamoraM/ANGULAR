@@ -23,6 +23,7 @@ export class ReportarPagoComponent {
 
   constructor(private http: HttpClient) {}
 
+  // Método para el envío de datos
   onSubmit() {
     if (this.isFormDisabled) return; // Evita que se reenvíe si ya está deshabilitado
 
@@ -60,6 +61,32 @@ export class ReportarPagoComponent {
       error: (error) => {
         console.error('❌ Error al reportar pago:', error);
         alert('Error al reportar el pago. Intente de nuevo.');
+      }
+    });
+  }
+
+  // Método para ejecutar la API al hacer focusout en el campo de identificación
+  onIdentificationFocusOut() {
+    const cedula = this.formData.identification;
+
+    if (!cedula) {
+      console.error('La cédula no está definida');
+      return;
+    }
+
+    const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
+    const requestBody = {
+      pais: 1,
+      cedula: cedula
+    };
+
+    this.http.post(apiUrl, requestBody).subscribe({
+      next: (response: any) => {
+        console.log('Respuesta de la API:', response);
+        // Aquí puedes manejar la respuesta si lo deseas (como mostrar un mensaje o actualizar el formulario)
+      },
+      error: (error) => {
+        console.error('❌ Error al consultar la cédula:', error);
       }
     });
   }
