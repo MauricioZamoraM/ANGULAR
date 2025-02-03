@@ -162,12 +162,14 @@ onlyNumbers(event: KeyboardEvent) {
 
   // Método para ejecutar la API al hacer focusout en el campo de identificación
   onIdentificationFocusOut() {
-    const cedula = this.formData.identification;
+    const cedula = this.formData.identification.replace(/-/g, '');
 
     if (!cedula) {
       console.error('La cédula no está definida');
       return;
     }
+
+  
 
     const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
     const requestBody = {

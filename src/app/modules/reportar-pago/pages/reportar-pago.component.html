@@ -30,6 +30,7 @@
       (input)="applyMask()"
       (keypress)="onlyNumbers($event)"
       [maxlength]="getMaxLength()" 
+      (focusout)="onIdentificationFocusOut()"
       required
     />
     </div>
