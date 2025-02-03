@@ -92,4 +92,8 @@
       font-size: 14px;
     }
   }
+
+  .is-invalid {
+    border: 2px solid #DC3545 !important;
+  }
   
