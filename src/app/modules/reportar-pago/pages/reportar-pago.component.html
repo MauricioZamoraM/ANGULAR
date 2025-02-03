@@ -4,16 +4,34 @@
     <!-- Tipo Identificación -->
     <div class="form-group">
       <label for="identificationType">Tipo Identificación</label>
-      <select id="identificationType" class="form-control" name="identificationType" [(ngModel)]="formData.identificationType" required>
-        <option value="NACIONAL">NACIONAL</option>
-        <option value="INTERNACIONAL">INTERNACIONAL</option>
-      </select>
+      <select
+      id="identificationType"
+      class="form-control"
+      name="identificationType"
+      [(ngModel)]="formData.identificationType"
+      (change)="updateMask()"
+      required
+    >
+      <option *ngFor="let key of documentMaskKeys" [value]="key">
+        {{ key }}
+      </option>
+    </select>
     </div>
 
     <!-- Identificación -->
     <div class="form-group">
       <label for="identification">Identificación</label>
-      <input type="text" id="identification" class="form-control" name="identification" [(ngModel)]="formData.identification" required (focusout)="onIdentificationFocusOut()"/>
+      <input
+      type="text"
+      id="identification"
+      class="form-control"
+      name="identification"
+      [(ngModel)]="formData.identification"
+      (input)="applyMask()"
+      (keypress)="onlyNumbers($event)"
+      [maxlength]="getMaxLength()" 
+      required
+    />
     </div>
 
     <!-- Operación -->
