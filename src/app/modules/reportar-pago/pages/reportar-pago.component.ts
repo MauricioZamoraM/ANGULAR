@@ -2,6 +2,8 @@ import { Component } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
+
 
 @Component({
   selector: 'app-reportar-pago',
@@ -17,7 +19,7 @@ export class ReportarPagoComponent {
     operation: '',
     referenceNumber: '',
     paymentDate: '',
-    amountPaid: null as number | null
+    amountPaid: ''
   };
 
   operations: string[] = []; // Arreglo para los valores de operación
@@ -26,6 +28,8 @@ export class ReportarPagoComponent {
   documentMasks: { [key: string]: string } = {}; // Almacena las máscaras
   documentMaskKeys: string[] = [];
   currentMask: string = '';
+
+  identificationError: string | null = null;
 
   constructor(private http: HttpClient) { }
 
@@ -46,6 +50,13 @@ export class ReportarPagoComponent {
           });
 
           this.documentMaskKeys = Object.keys(this.documentMasks);
+
+                // Si hay valores en el combo, seleccionar el primero por defecto
+        if (this.documentMaskKeys.length > 0) {
+          this.formData.identificationType = this.documentMaskKeys[0];
+          this.updateMask(); // Aplicar la máscara correspondiente
+        }
+        
         }
       },
       error: (error) => {
@@ -61,14 +72,13 @@ export class ReportarPagoComponent {
     this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
   }
 
-  // Aplicar la máscara en tiempo real
   applyMask() {
     if (!this.currentMask) return;
-  
+
     let rawValue = this.formData.identification.replace(/\D/g, ''); // Solo números
     let maskedValue = '';
     let rawIndex = 0;
-  
+
     // Validación adicional para permitir solo caracteres según la máscara
     const maskPattern = this.currentMask.split('');
     for (let i = 0; i < maskPattern.length; i++) {
@@ -82,32 +92,49 @@ export class ReportarPagoComponent {
         maskedValue += maskPattern[i];
       }
     }
-  
+
     // Cortamos si el usuario intenta escribir más números de los permitidos
     if (rawValue.length > this.getMaxLength()) {
       rawValue = rawValue.substring(0, this.getMaxLength());
     }
-  
+
     // Actualiza el valor con la máscara aplicada
     this.formData.identification = maskedValue;
   }
-  
+
+  // Método para validar la identificación según la máscara
+  validateIdentification() {
+    const selectedType = this.formData.identificationType;
+    const validMask = this.documentMasks[selectedType];
+    //Obtener la mascara y la cedula ingresada en el input, si ambas tienen la misma longitud no mostrar error
+
+    // Verifica si la identificación cumple con la máscara
+    if (validMask.length !== this.formData.identification.length) {
+      this.identificationError = 'Verifique que el número de identificación ingresado sea el correcto o que el tipo de documento sea el adecuado.';
+      return false;
+    } else {
+      this.identificationError = null;
+      return true;
+    }
+  }
+
+
 
   // Método para evitar que el usuario ingrese letras
-onlyNumbers(event: KeyboardEvent) {
-  const regex = /^[0-9]$/;
-  const key = event.key;
+  onlyNumbers(event: KeyboardEvent) {
+    const regex = /^[0-9]$/;
+    const key = event.key;
 
-  if (!regex.test(key)) {
-    event.preventDefault(); // Evita la entrada de caracteres no numéricos
+    if (!regex.test(key)) {
+      event.preventDefault(); // Evita la entrada de caracteres no numéricos
+    }
   }
-}
 
 
   getMaxLength(): number {
     // Revisamos si this.currentMask tiene un valor válido
     if (!this.currentMask) {
-      return 0; 
+      return 0;
     }
 
     // Contamos tanto los caracteres '#' como los '-'
@@ -127,7 +154,7 @@ onlyNumbers(event: KeyboardEvent) {
     const requestBody = {
       IDPais: 1,
       IDCredito: this.formData.operation || 'SIN_ID',
-      MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
+      MontoPago: (this.formData.amountPaid),
       FechaPago: this.formData.paymentDate
         ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
         : '01/01/2024',
@@ -147,7 +174,7 @@ onlyNumbers(event: KeyboardEvent) {
           operation: '',
           referenceNumber: '',
           paymentDate: '',
-          amountPaid: null
+          amountPaid: ''
         };
 
         // Deshabilita el formulario para evitar reenvíos
@@ -165,40 +192,52 @@ onlyNumbers(event: KeyboardEvent) {
     const cedula = this.formData.identification.replace(/-/g, '');
 
     if (!cedula) {
-      console.error('La cédula no está definida');
       return;
-    }
 
-  
+    } else {
+      if (this.validateIdentification()) {
+        const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
+        const requestBody = {
+          pais: 1,
+          cedula: cedula
+        };
 
-    const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
-    const requestBody = {
-      pais: 1,
-      cedula: cedula
-    };
+        this.http.post(apiUrl, requestBody).subscribe({
+          next: (response: any) => {
+            console.log('Respuesta de la API:', response);
 
-    this.http.post(apiUrl, requestBody).subscribe({
-      next: (response: any) => {
-        console.log('Respuesta de la API:', response);
+            // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
+            if (response.success && response.data && response.data.length > 0) {
+              this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
 
-        // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
-        if (response.success && response.data && response.data.length > 0) {
-          this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
+              // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
+              this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
 
-          // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
-          this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
-
-          // Si solo hay un valor, lo asignamos directamente al campo de operación
-          if (this.operations.length === 1) {
-            this.formData.operation = this.operations[0];
+              // Si solo hay un valor, lo asignamos directamente al campo de operación
+              if (this.operations.length === 1) {
+                this.formData.operation = this.operations[0];
+              }
+            } else {
+              Swal.fire({
+                title: 'Informativo',
+                text: 'El número de identificación ingresado no posee créditos activos.',
+                icon: 'info'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this.formData.amountPaid = '';
+                  this.formData.operation = '';
+                  this.operations = [];
+                  this.formData.referenceNumber = '';
+                  this.formData.paymentDate = '';
+                }
+              });
+            }
+          },
+          error: (error) => {
+            console.error('❌ Error al consultar la cédula:', error);
           }
-        } else {
-          console.error('No se encontró valor de obligación');
-        }
-      },
-      error: (error) => {
-        console.error('❌ Error al consultar la cédula:', error);
+        });
       }
-    });
+    }
   }
 }

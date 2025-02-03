@@ -1,38 +1,27 @@
 <div class="form-container">
   <form (ngSubmit)="onSubmit()" #paymentForm="ngForm">
-    
+
     <!-- Tipo Identificación -->
     <div class="form-group">
       <label for="identificationType">Tipo Identificación</label>
-      <select
-      id="identificationType"
-      class="form-control"
-      name="identificationType"
-      [(ngModel)]="formData.identificationType"
-      (change)="updateMask()"
-      required
-    >
-      <option *ngFor="let key of documentMaskKeys" [value]="key">
-        {{ key }}
-      </option>
-    </select>
+      <select id="identificationType" class="form-control" name="identificationType"
+        [(ngModel)]="formData.identificationType" (change)="updateMask()" required>
+        <option *ngFor="let key of documentMaskKeys" [value]="key">
+          {{ key }}
+        </option>
+      </select>
     </div>
 
     <!-- Identificación -->
     <div class="form-group">
       <label for="identification">Identificación</label>
-      <input
-      type="text"
-      id="identification"
-      class="form-control"
-      name="identification"
-      [(ngModel)]="formData.identification"
-      (input)="applyMask()"
-      (keypress)="onlyNumbers($event)"
-      [maxlength]="getMaxLength()" 
-      (focusout)="onIdentificationFocusOut()"
-      required
-    />
+      <input type="text" id="identification" class="form-control" name="identification"
+        [(ngModel)]="formData.identification" (input)="applyMask()" (keypress)="onlyNumbers($event)"
+        [maxlength]="getMaxLength()" (focusout)="onIdentificationFocusOut()" required />
+      <!-- Mostrar el mensaje de error -->
+      <div *ngIf="identificationError" class="text-danger">
+        {{ identificationError }}
+      </div>
     </div>
 
     <!-- Operación -->
@@ -40,29 +29,32 @@
       <label for="operation">Operación</label>
       <select id="operation" class="form-control" name="operation" [(ngModel)]="formData.operation" required>
         <option *ngFor="let op of operations" [value]="op">{{ op }}</option>
-      </select>      
+      </select>
     </div>
 
     <!-- Número de referencia -->
     <div class="form-group">
       <label for="referenceNumber">Número de referencia</label>
-      <input type="text" id="referenceNumber" class="form-control" name="referenceNumber" [(ngModel)]="formData.referenceNumber" required />
+      <input type="text" id="referenceNumber" class="form-control" name="referenceNumber"
+        [(ngModel)]="formData.referenceNumber" required />
     </div>
 
     <!-- Fecha de Pago -->
     <div class="form-group">
       <label for="paymentDate">Fecha de Pago</label>
-      <input type="date" id="paymentDate" class="form-control" name="paymentDate" [(ngModel)]="formData.paymentDate" required />
+      <input type="date" id="paymentDate" class="form-control" name="paymentDate" [(ngModel)]="formData.paymentDate"
+        required />
     </div>
 
     <!-- Monto pagado -->
     <div class="form-group">
       <label for="amountPaid">Monto pagado</label>
-      <input type="number" id="amountPaid" class="form-control" name="amountPaid" [(ngModel)]="formData.amountPaid" required />
+      <input type="text" id="amountPaid" class="form-control" name="amountPaid" [(ngModel)]="formData.amountPaid"
+        required />
     </div>
 
     <div class="form-group"></div>
-    
+
     <!-- Botón Guardar -->
     <button type="submit" class="btn btn-success" [disabled]="paymentForm.invalid">ENVIAR</button>
   </form>
