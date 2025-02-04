@@ -30,6 +30,11 @@ export class ReportarPagoComponent {
   currentMask: string = '';
 
   identificationError: string | null = null;
+  referenciaError: string | null = null;
+  fechaPagoError: string | null = null;
+  montoPagadoError: string | null = null;
+  operacionError: string | null = null;
+  identificationTypeError: string | null = null;
 
   constructor(private http: HttpClient) { }
 
@@ -51,12 +56,12 @@ export class ReportarPagoComponent {
 
           this.documentMaskKeys = Object.keys(this.documentMasks);
 
-                // Si hay valores en el combo, seleccionar el primero por defecto
-        if (this.documentMaskKeys.length > 0) {
-          this.formData.identificationType = this.documentMaskKeys[0];
-          this.updateMask(); // Aplicar la máscara correspondiente
-        }
-        
+          // Si hay valores en el combo, seleccionar el primero por defecto
+          if (this.documentMaskKeys.length > 0) {
+            this.formData.identificationType = this.documentMaskKeys[0];
+            this.updateMask(); // Aplicar la máscara correspondiente
+          }
+
         }
       },
       error: (error) => {
@@ -118,6 +123,88 @@ export class ReportarPagoComponent {
     }
   }
 
+  validateReferenceNumber() {
+    if (!this.formData.referenceNumber) {
+      this.referenciaError = 'Campo requerido';
+    } else {
+      this.referenciaError = null;
+    }
+  }
+
+  validateOperation() {
+    if (!this.formData.operation) {
+      this.operacionError = 'Campo requerido';
+    } else {
+      this.operacionError = null;
+    }
+  }
+
+  validatePaymentDate() {
+    if (!this.formData.paymentDate) {
+      this.fechaPagoError = 'Campo requerido';
+    } else {
+      this.fechaPagoError = null;
+    }
+  }
+
+  validateAmountPaid() {
+    if (!this.formData.amountPaid) {
+      this.montoPagadoError = 'Campo requerido';
+    } else {
+      this.montoPagadoError = null;
+    }
+  }
+
+  validateForm() {
+    let isValid = true;
+
+    // Reiniciar mensajes de error
+    this.identificationTypeError = '';
+    this.identificationError = '';
+    this.operacionError = '';
+    this.referenciaError = '';
+    this.fechaPagoError = '';
+    this.montoPagadoError = '';
+
+    // Validar Tipo Identificación
+    if (!this.formData.identificationType) {
+      this.identificationTypeError = 'Campo requerido';
+      isValid = false;
+    }
+
+    // Validar Identificación
+    if (!this.formData.identification) {
+      this.identificationError = 'Campo requerido';
+      isValid = false;
+    }
+
+    // Validar Operación
+    if (!this.formData.operation) {
+      this.operacionError = 'Campo requerido';
+      isValid = false;
+    }
+
+    // Validar Número de Referencia
+    if (!this.formData.referenceNumber) {
+      this.referenciaError = 'Campo requerido';
+      isValid = false;
+    }
+
+    // Validar Fecha de Pago
+    if (!this.formData.paymentDate) {
+      this.fechaPagoError = 'Campo requerido';
+      isValid = false;
+    }
+
+    // Validar Monto Pagado
+    if (!this.formData.amountPaid) {
+      this.montoPagadoError = 'Campo requerido';
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
 
 
   // Método para evitar que el usuario ingrese letras
@@ -149,42 +236,50 @@ export class ReportarPagoComponent {
   onSubmit() {
     if (this.isFormDisabled) return; // Evita que se reenvíe si ya está deshabilitado
 
-    const apiUrl = 'http://localhost:5154/ReportePagos/MC';
+    if (!this.validateForm()) {
+      Swal.fire({
+        title: 'Informativo',
+        text: 'Complete todos los campos antes de enviar el formulario.',
+        icon: 'info'
+      });
+    } else {
+      const apiUrl = 'http://localhost:5154/ReportePagos/MC';
 
-    const requestBody = {
-      IDPais: 1,
-      IDCredito: this.formData.operation || 'SIN_ID',
-      MontoPago: (this.formData.amountPaid),
-      FechaPago: this.formData.paymentDate
-        ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
-        : '01/01/2024',
-      LugarDeposito: "INSTACREDIT",
-      PuntoPago: "PRUEBA A3C",
-      NoComprobante: this.formData.referenceNumber || 'SIN_COMPROBANTE'
-    };
+      const requestBody = {
+        IDPais: 1,
+        IDCredito: this.formData.operation || 'SIN_ID',
+        MontoPago: (this.formData.amountPaid),
+        FechaPago: this.formData.paymentDate
+          ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
+          : '01/01/2024',
+        LugarDeposito: "INSTACREDIT",
+        PuntoPago: "PRUEBA A3C",
+        NoComprobante: this.formData.referenceNumber || 'SIN_COMPROBANTE'
+      };
 
-    this.http.post(apiUrl, requestBody).subscribe({
-      next: () => {
-        alert('Pago reportado correctamente');
+      this.http.post(apiUrl, requestBody).subscribe({
+        next: () => {
+          alert('Pago reportado correctamente');
 
-        // 🔄 Limpia los campos después del envío
-        this.formData = {
-          identificationType: '',
-          identification: '',
-          operation: '',
-          referenceNumber: '',
-          paymentDate: '',
-          amountPaid: ''
-        };
+          // 🔄 Limpia los campos después del envío
+          this.formData = {
+            identificationType: '',
+            identification: '',
+            operation: '',
+            referenceNumber: '',
+            paymentDate: '',
+            amountPaid: ''
+          };
 
-        // Deshabilita el formulario para evitar reenvíos
-        this.isFormDisabled = true;
-      },
-      error: (error) => {
-        console.error('❌ Error al reportar pago:', error);
-        alert('Error al reportar el pago. Intente de nuevo.');
-      }
-    });
+          // Deshabilita el formulario para evitar reenvíos
+          this.isFormDisabled = true;
+        },
+        error: (error) => {
+          console.error('❌ Error al reportar pago:', error);
+          alert('Error al reportar el pago. Intente de nuevo.');
+        }
+      });
+    }
   }
 
   // Método para ejecutar la API al hacer focusout en el campo de identificación
@@ -195,6 +290,7 @@ export class ReportarPagoComponent {
       return;
 
     } else {
+
       if (this.validateIdentification()) {
         const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
         const requestBody = {
@@ -232,6 +328,7 @@ export class ReportarPagoComponent {
                 }
               });
             }
+            this.validateOperation();
           },
           error: (error) => {
             console.error('❌ Error al consultar la cédula:', error);
