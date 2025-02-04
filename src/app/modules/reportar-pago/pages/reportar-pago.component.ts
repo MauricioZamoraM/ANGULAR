@@ -36,6 +36,9 @@ export class ReportarPagoComponent {
   operacionError: string | null = null;
   identificationTypeError: string | null = null;
 
+  today: string = new Date().toISOString().split('T')[0];
+
+
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
@@ -229,7 +232,6 @@ export class ReportarPagoComponent {
 
     return maxLength;
   }
-
 
 
   // Método para el envío de datos
