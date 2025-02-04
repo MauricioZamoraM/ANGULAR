@@ -1,99 +1,129 @@
 /* Estilos para el contenedor del formulario */
 .form-container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Estilos generales para los elementos del formulario */
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  /* Se usa display grid para organizar los campos en 2 columnas en pantallas grandes */
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilos generales para los elementos del formulario */
+.form-group {
+  margin-bottom: 15px;
+}
+
+/* Se usa display grid para organizar los campos en 2 columnas en pantallas grandes */
+form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Dos columnas de igual tamaño */
+  gap: 20px;
+  /* Espacio entre columnas */
+}
+
+/* En pantallas grandes los elementos ocupan una columna */
+label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+input[type="text"],
+input[type="date"],
+input[type="number"],
+select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="number"]:focus,
+select:focus {
+  border-color: #007bff;
+  outline: none;
+}
+
+/* Estilos para el botón */
+button[type="submit"] {
+  width: auto;
+  /* El ancho del botón se ajustará al contenido */
+  padding: 6px 12px;
+  /* Tamaño más pequeño */
+  background-color: #28a745;
+  color: white;
+  font-size: 14px;
+  /* Fuente más pequeña */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  justify-self: end;
+  /* Coloca el botón al final (derecha) de la columna */
+}
+
+button[type="submit"]:hover {
+  background-color: #218838;
+}
+
+/* Responsividad para pantallas más pequeñas */
+@media (max-width: 768px) {
   form {
-    display: grid;
-    grid-template-columns: 1fr 1fr;  /* Dos columnas de igual tamaño */
-    gap: 20px;  /* Espacio entre columnas */
+    grid-template-columns: 1fr;
+    /* Una sola columna en pantallas pequeñas */
   }
-  
-  /* En pantallas grandes los elementos ocupan una columna */
-  label {
+
+  .form-container {
+    padding: 15px;
+    max-width: 100%;
+  }
+
+  button[type="submit"] {
     font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
+    align-self: center;
+    /* Centra el botón en pantallas pequeñas */
   }
-  
+
+  label {
+    font-size: 14px;
+  }
+
   input[type="text"],
   input[type="date"],
   input[type="number"],
   select {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
+    font-size: 14px;
   }
-  
-  input[type="text"]:focus,
-  input[type="date"]:focus,
-  input[type="number"]:focus,
-  select:focus {
-    border-color: #007bff;
-    outline: none;
-  }
-  
-  /* Estilos para el botón */
-  button[type="submit"] {
-    width: auto;  /* El ancho del botón se ajustará al contenido */
-    padding: 6px 12px;  /* Tamaño más pequeño */
-    background-color: #28a745;
-    color: white;
-    font-size: 14px;  /* Fuente más pequeña */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-    justify-self: end;  /* Coloca el botón al final (derecha) de la columna */
-  }
-  
-  button[type="submit"]:hover {
-    background-color: #218838;
-  }
-  
-  /* Responsividad para pantallas más pequeñas */
-  @media (max-width: 768px) {
-    form {
-      grid-template-columns: 1fr;  /* Una sola columna en pantallas pequeñas */
-    }
-  
-    .form-container {
-      padding: 15px;
-      max-width: 100%;
-    }
-  
-    button[type="submit"] {
-      font-size: 16px;
-      align-self: center;  /* Centra el botón en pantallas pequeñas */
-    }
-  
-    label {
-      font-size: 14px;
-    }
-  
-    input[type="text"],
-    input[type="date"],
-    input[type="number"],
-    select {
-      font-size: 14px;
-    }
-  }
+}
 
-  .is-invalid {
-    border: 2px solid #DC3545 !important;
-  }
-  
+.is-invalid {
+  border: 2px solid #DC3545 !important;
+}
+
+
+#amountPaid::-webkit-outer-spin-button,
+#amountPaid::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#amountPaid {
+  -moz-appearance: textfield;
+  appearance: none;
+}
+
+#referenceNumber::-webkit-outer-spin-button,
+#referenceNumber::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#referenceNumber {
+  -moz-appearance: textfield;
+  appearance: none;
+}

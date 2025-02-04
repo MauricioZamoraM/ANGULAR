@@ -17,7 +17,7 @@ export class ReportarPagoComponent {
     identificationType: '',
     identification: '',
     operation: '',
-    referenceNumber: '',
+    referenceNumber: null,
     paymentDate: '',
     amountPaid: null
   };
@@ -247,36 +247,60 @@ export class ReportarPagoComponent {
 
       const requestBody = {
         IDPais: 1,
-        IDCredito: this.formData.operation || 'SIN_ID',
+        IDCredito: this.formData.operation,
         MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
         FechaPago: this.formData.paymentDate
-          ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
-          : '01/01/2024',
+          ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            .format(new Date(this.formData.paymentDate))
+          : null,
         LugarDeposito: "INSTACREDIT",
         PuntoPago: "PRUEBA A3C",
-        NoComprobante: this.formData.referenceNumber || 'SIN_COMPROBANTE'
+        NoComprobante: this.formData.referenceNumber
       };
 
       this.http.post(apiUrl, requestBody).subscribe({
         next: () => {
-          alert('Pago reportado correctamente');
+          Swal.fire({
+            title: 'Éxito',
+            text: 'Pago reportado correctamente.',
+            icon: 'success',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // 🔄 Limpia los campos después del envío
+              this.formData = {
+                identificationType: '',
+                identification: '',
+                operation: '',
+                referenceNumber: null,
+                paymentDate: '',
+                amountPaid: null
+              };
 
-          // 🔄 Limpia los campos después del envío
-          this.formData = {
-            identificationType: '',
-            identification: '',
-            operation: '',
-            referenceNumber: '',
-            paymentDate: '',
-            amountPaid: null
-          };
-
-          // Deshabilita el formulario para evitar reenvíos
-          this.isFormDisabled = true;
+              // Deshabilita el formulario para evitar reenvíos
+              this.isFormDisabled = true;
+            }
+          });
         },
-        error: (error) => {
-          console.error('❌ Error al reportar pago:', error);
-          alert('Error al reportar el pago. Intente de nuevo.');
+        error: () => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Se presentó un inconveniente al reportar el pago, por favor intentelo más tarde.',
+            icon: 'error',
+          }).then((result) => {
+            if (result.isConfirmed) {
+              // 🔄 Limpia los campos después del envío
+              this.formData = {
+                identificationType: '',
+                identification: '',
+                operation: '',
+                referenceNumber: null,
+                paymentDate: '',
+                amountPaid: null
+              };
+              // Deshabilita el formulario para evitar reenvíos
+              this.isFormDisabled = true;
+            }
+          });
         }
       });
     }
@@ -323,7 +347,7 @@ export class ReportarPagoComponent {
                   this.formData.amountPaid = null;
                   this.formData.operation = '';
                   this.operations = [];
-                  this.formData.referenceNumber = '';
+                  this.formData.referenceNumber = null;
                   this.formData.paymentDate = '';
                 }
               });

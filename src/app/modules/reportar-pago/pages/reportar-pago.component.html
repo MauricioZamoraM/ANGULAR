@@ -45,7 +45,7 @@
     <!-- Número de referencia -->
     <div class="form-group">
       <label for="referenceNumber">Número de referencia</label>
-      <input type="text" id="referenceNumber" class="form-control" name="referenceNumber"
+      <input type="number" id="referenceNumber" class="form-control" name="referenceNumber"
         [(ngModel)]="formData.referenceNumber" [ngClass]="{ 'is-invalid': referenciaError }" required [disabled]="isFormDisabled" (focusout)="validateReferenceNumber()" />
       <!-- Mostrar el mensaje de error -->
       <div *ngIf="referenciaError" class="text-danger">
