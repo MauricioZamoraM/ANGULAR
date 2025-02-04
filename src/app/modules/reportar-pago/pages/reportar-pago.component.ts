@@ -19,7 +19,7 @@ export class ReportarPagoComponent {
     operation: '',
     referenceNumber: '',
     paymentDate: '',
-    amountPaid: ''
+    amountPaid: null
   };
 
   operations: string[] = []; // Arreglo para los valores de operación
@@ -248,7 +248,7 @@ export class ReportarPagoComponent {
       const requestBody = {
         IDPais: 1,
         IDCredito: this.formData.operation || 'SIN_ID',
-        MontoPago: (this.formData.amountPaid),
+        MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
         FechaPago: this.formData.paymentDate
           ? new Date(this.formData.paymentDate).toLocaleDateString('es-ES')
           : '01/01/2024',
@@ -268,7 +268,7 @@ export class ReportarPagoComponent {
             operation: '',
             referenceNumber: '',
             paymentDate: '',
-            amountPaid: ''
+            amountPaid: null
           };
 
           // Deshabilita el formulario para evitar reenvíos
@@ -304,7 +304,7 @@ export class ReportarPagoComponent {
 
             // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
             if (response.success && response.data && response.data.length > 0) {
-              this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
+              // this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
 
               // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
               this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
@@ -320,7 +320,7 @@ export class ReportarPagoComponent {
                 icon: 'info'
               }).then((result) => {
                 if (result.isConfirmed) {
-                  this.formData.amountPaid = '';
+                  this.formData.amountPaid = null;
                   this.formData.operation = '';
                   this.operations = [];
                   this.formData.referenceNumber = '';
