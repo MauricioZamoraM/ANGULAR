@@ -127,3 +127,7 @@ button[type="submit"]:hover {
   -moz-appearance: textfield;
   appearance: none;
 }
+
+.no-icon-is-invalid {
+  background-image: none !important;
+}

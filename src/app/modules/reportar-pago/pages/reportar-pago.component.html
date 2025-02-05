@@ -56,7 +56,7 @@
     <!-- Fecha de Pago -->
     <div class="form-group">
       <label for="paymentDate">Fecha de Pago</label>
-      <input type="date" id="paymentDate" class="form-control" name="paymentDate" [(ngModel)]="formData.paymentDate"  (focusout)="validatePaymentDate()"
+      <input type="date" id="paymentDate" class="form-control no-icon-is-invalid" name="paymentDate" [(ngModel)]="formData.paymentDate"  (focusout)="validatePaymentDate()"
         required [disabled]="isFormDisabled" [ngClass]="{ 'is-invalid': fechaPagoError }"  [max]="today" />
       <div *ngIf="fechaPagoError" class="text-danger">
         {{ fechaPagoError }}
