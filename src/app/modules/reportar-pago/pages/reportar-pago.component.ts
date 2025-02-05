@@ -158,10 +158,19 @@ export class ReportarPagoComponent {
   validatePaymentDate() {
     if (!this.formData.paymentDate) {
       this.fechaPagoError = 'Campo requerido';
+      return;
+    }
+
+    const selectedDate = new Date(this.formData.paymentDate);
+    const todayDate = new Date(this.today);
+
+    if (selectedDate > todayDate) {
+      this.fechaPagoError = 'Estimado usuario, favor indicar únicamente fechas igual o inferiores a hoy.';
     } else {
       this.fechaPagoError = null;
     }
   }
+
 
   validateAmountPaid() {
     if (!this.formData.amountPaid) {
@@ -210,7 +219,14 @@ export class ReportarPagoComponent {
     if (!this.formData.paymentDate) {
       this.fechaPagoError = 'Campo requerido';
       isValid = false;
+    } else {
+      // Llamar a la función de validación de fecha que ya tienes
+      this.validatePaymentDate();
+      if (this.fechaPagoError) {
+        isValid = false;
+      }
     }
+
 
     // Validar Monto Pagado
     if (!this.formData.amountPaid) {
@@ -303,6 +319,7 @@ export class ReportarPagoComponent {
             }
           });
         },
+
         error: () => {
           Swal.fire({
             title: 'Error',
@@ -332,50 +349,50 @@ export class ReportarPagoComponent {
   onIdentificationFocusOut() {
     const cedula = this.formData.identification.replace(/-/g, '');
 
-      if (this.validateIdentification()) {
-        const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
-        const requestBody = {
-          pais: this.pais,
-          cedula: cedula
-        };
+    if (this.validateIdentification()) {
+      const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
+      const requestBody = {
+        pais: this.pais,
+        cedula: cedula
+      };
 
-        this.http.post(apiUrl, requestBody).subscribe({
-          next: (response: any) => {
-            console.log('Respuesta de la API:', response);
+      this.http.post(apiUrl, requestBody).subscribe({
+        next: (response: any) => {
+          console.log('Respuesta de la API:', response);
 
-            // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
-            if (response.success && response.data && response.data.length > 0) {
-              // this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
+          // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
+          if (response.success && response.data && response.data.length > 0) {
+            // this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
 
-              // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
-              this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
+            // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
+            this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
 
-              // Si solo hay un valor, lo asignamos directamente al campo de operación
-              if (this.operations.length === 1) {
-                this.formData.operation = this.operations[0];
-              }
-            } else {
-              Swal.fire({
-                title: 'Informativo',
-                text: 'El número de identificación ingresado no posee créditos activos.',
-                icon: 'info'
-              }).then((result) => {
-                if (result.isConfirmed) {
-                  this.formData.amountPaid = null;
-                  this.formData.operation = '';
-                  this.operations = [];
-                  this.formData.referenceNumber = null;
-                  this.formData.paymentDate = '';
-                }
-              });
+            // Si solo hay un valor, lo asignamos directamente al campo de operación
+            if (this.operations.length === 1) {
+              this.formData.operation = this.operations[0];
             }
-            this.validateOperation();
-          },
-          error: (error) => {
-            console.error('❌ Error al consultar la cédula:', error);
+          } else {
+            Swal.fire({
+              title: 'Informativo',
+              text: 'El número de identificación ingresado no posee créditos activos.',
+              icon: 'info'
+            }).then((result) => {
+              if (result.isConfirmed) {
+                this.formData.amountPaid = null;
+                this.formData.operation = '';
+                this.operations = [];
+                this.formData.referenceNumber = null;
+                this.formData.paymentDate = '';
+              }
+            });
           }
-        });
-      }
-    
+          this.validateOperation();
+        },
+        error: (error) => {
+          console.error('❌ Error al consultar la cédula:', error);
+        }
+      });
+    }
+
   }
 }
