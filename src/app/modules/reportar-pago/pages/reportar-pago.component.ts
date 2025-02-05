@@ -39,6 +39,8 @@ export class ReportarPagoComponent {
   today: string = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     .split('/').reverse().join('-');
 
+  pais: number = 1;
+
 
   constructor(private http: HttpClient) { }
 
@@ -49,7 +51,7 @@ export class ReportarPagoComponent {
   // Obtener las máscaras desde la API
   fetchDocumentMasks() {
     const apiUrl = 'http://localhost:5154/ReportePagos/TiposDocumento';
-    const requestBody = { Cedula: '', pais: 1 };
+    const requestBody = { Cedula: '', pais: this.pais };
 
     this.http.post(apiUrl, requestBody).subscribe({
       next: (response: any) => {
@@ -76,54 +78,64 @@ export class ReportarPagoComponent {
 
   // Método para actualizar la máscara cuando cambie el tipo de identificación
   updateMask() {
-    const selectedType = this.formData.identificationType;
-    this.currentMask = this.documentMasks[selectedType] || '';
-    this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
+    if (this.pais != 3) {
+      const selectedType = this.formData.identificationType;
+      this.currentMask = this.documentMasks[selectedType] || '';
+      this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
+    }
   }
 
   applyMask() {
-    if (!this.currentMask) return;
+    if (this.pais != 3) {
+      if (!this.currentMask) return;
 
-    let rawValue = this.formData.identification.replace(/\D/g, ''); // Solo números
-    let maskedValue = '';
-    let rawIndex = 0;
+      let rawValue = this.formData.identification.replace(/\D/g, ''); // Solo números
+      let maskedValue = '';
+      let rawIndex = 0;
 
-    // Validación adicional para permitir solo caracteres según la máscara
-    const maskPattern = this.currentMask.split('');
-    for (let i = 0; i < maskPattern.length; i++) {
-      if (maskPattern[i] === '#') {
-        if (rawIndex < rawValue.length) {
-          maskedValue += rawValue[rawIndex++];
+      // Validación adicional para permitir solo caracteres según la máscara
+      const maskPattern = this.currentMask.split('');
+      for (let i = 0; i < maskPattern.length; i++) {
+        if (maskPattern[i] === '#') {
+          if (rawIndex < rawValue.length) {
+            maskedValue += rawValue[rawIndex++];
+          } else {
+            break;
+          }
         } else {
-          break;
+          maskedValue += maskPattern[i];
         }
-      } else {
-        maskedValue += maskPattern[i];
       }
+
+      // Cortamos si el usuario intenta escribir más números de los permitidos
+      if (rawValue.length > this.getMaxLength()) {
+        rawValue = rawValue.substring(0, this.getMaxLength());
+      }
+
+      // Actualiza el valor con la máscara aplicada
+      this.formData.identification = maskedValue;
     }
 
-    // Cortamos si el usuario intenta escribir más números de los permitidos
-    if (rawValue.length > this.getMaxLength()) {
-      rawValue = rawValue.substring(0, this.getMaxLength());
-    }
-
-    // Actualiza el valor con la máscara aplicada
-    this.formData.identification = maskedValue;
   }
 
   // Método para validar la identificación según la máscara
   validateIdentification() {
-    const selectedType = this.formData.identificationType;
-    const validMask = this.documentMasks[selectedType];
-    //Obtener la mascara y la cedula ingresada en el input, si ambas tienen la misma longitud no mostrar error
-
-    // Verifica si la identificación cumple con la máscara
-    if (validMask.length !== this.formData.identification.length) {
-      this.identificationError = 'Verifique que el número de identificación ingresado sea el correcto o que el tipo de documento sea el adecuado.';
+    if (!this.formData.identification) {
+      this.identificationError = 'Campo requerido';
       return false;
     } else {
-      this.identificationError = null;
-      return true;
+      const selectedType = this.formData.identificationType;
+      const validMask = this.documentMasks[selectedType];
+      //Obtener la mascara y la cedula ingresada en el input, si ambas tienen la misma longitud no mostrar error
+
+      // Verifica si la identificación cumple con la máscara
+      if (validMask.length !== this.formData.identification.length) {
+        this.identificationError = 'Verifique que el número de identificación ingresado sea el correcto o que el tipo de documento sea el adecuado.';
+        return false;
+      } else {
+        this.identificationError = null;
+        return true;
+      }
     }
   }
 
@@ -213,25 +225,32 @@ export class ReportarPagoComponent {
 
   // Método para evitar que el usuario ingrese letras
   onlyNumbers(event: KeyboardEvent) {
-    const regex = /^[0-9]$/;
-    const key = event.key;
+    if (this.pais !== 3) {
+      const regex = /^[0-9]$/;
+      const key = event.key;
 
-    if (!regex.test(key)) {
-      event.preventDefault(); // Evita la entrada de caracteres no numéricos
+      if (!regex.test(key)) {
+        event.preventDefault(); // Evita la entrada de caracteres no numéricos
+      }
     }
   }
 
 
   getMaxLength(): number {
-    // Revisamos si this.currentMask tiene un valor válido
-    if (!this.currentMask) {
-      return 0;
+    if (this.pais != 3) {
+      // Revisamos si this.currentMask tiene un valor válido
+      if (!this.currentMask) {
+        return 0;
+      }
+
+      // Contamos tanto los caracteres '#' como los '-'
+      const maxLength = (this.currentMask.match(/[#-]/g) || []).length;
+
+      return maxLength;
+    } else {
+      return 50;
     }
 
-    // Contamos tanto los caracteres '#' como los '-'
-    const maxLength = (this.currentMask.match(/[#-]/g) || []).length;
-
-    return maxLength;
   }
 
 
@@ -249,13 +268,13 @@ export class ReportarPagoComponent {
       const apiUrl = 'http://localhost:5154/ReportePagos/MC';
 
       const requestBody = {
-        IDPais: 1,
+        IDPais: this.pais,
         IDCredito: this.formData.operation,
         MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
         FechaPago: this.formData.paymentDate
-        ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
             .format(new Date(this.formData.paymentDate + 'T00:00:00'))
-        : null,
+          : null,
         LugarDeposito: "INSTACREDIT",
         PuntoPago: "PRUEBA A3C",
         NoComprobante: this.formData.referenceNumber
@@ -313,15 +332,10 @@ export class ReportarPagoComponent {
   onIdentificationFocusOut() {
     const cedula = this.formData.identification.replace(/-/g, '');
 
-    if (!cedula) {
-      return;
-
-    } else {
-
       if (this.validateIdentification()) {
         const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
         const requestBody = {
-          pais: 1,
+          pais: this.pais,
           cedula: cedula
         };
 
@@ -362,6 +376,6 @@ export class ReportarPagoComponent {
           }
         });
       }
-    }
+    
   }
 }
