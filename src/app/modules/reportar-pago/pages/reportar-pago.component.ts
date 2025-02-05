@@ -36,7 +36,8 @@ export class ReportarPagoComponent {
   operacionError: string | null = null;
   identificationTypeError: string | null = null;
 
-  today: string = new Date().toISOString().split('T')[0];
+  today: string = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    .split('/').reverse().join('-');
 
 
   constructor(private http: HttpClient) { }
@@ -252,9 +253,9 @@ export class ReportarPagoComponent {
         IDCredito: this.formData.operation,
         MontoPago: (this.formData.amountPaid ?? 0).toFixed(2),
         FechaPago: this.formData.paymentDate
-          ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
-            .format(new Date(this.formData.paymentDate))
-          : null,
+        ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
+            .format(new Date(this.formData.paymentDate + 'T00:00:00'))
+        : null,
         LugarDeposito: "INSTACREDIT",
         PuntoPago: "PRUEBA A3C",
         NoComprobante: this.formData.referenceNumber
