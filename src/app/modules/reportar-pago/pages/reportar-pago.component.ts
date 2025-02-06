@@ -28,6 +28,7 @@ export class ReportarPagoComponent {
   documentMasks: { [key: string]: string } = {}; // Almacena las máscaras
   documentMaskKeys: string[] = [];
   currentMask: string = '';
+  currentMaskPa: string = '';
 
   identificationError: string | null = null;
   referenciaError: string | null = null;
@@ -85,6 +86,7 @@ export class ReportarPagoComponent {
     } else {
       const selectedType = this.formData.identificationType;
       this.currentMask = this.documentMasks[selectedType] || ''; // Define la máscara actual
+      this.currentMaskPa = this.documentMasks[selectedType] || ''; 
       this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
     }
   }
@@ -149,6 +151,134 @@ export class ReportarPagoComponent {
           // Actualiza el valor con la máscara aplicada
           this.formData.identification = maskedValue;
           break;
+
+        case "AAAAAAAAAAAAAAA": // Pasaporte Extranjero (Letras y Números, máx. 15 caracteres)
+          let rawAlphaNumericValue = this.formData.identification.replace(/[^A-Za-z0-9]/g, '').toUpperCase(); // Permite letras y números
+          let maxLength = 15; // Longitud máxima permitida
+
+          // Corta el valor si supera el máximo
+          if (rawAlphaNumericValue.length > maxLength) {
+            rawAlphaNumericValue = rawAlphaNumericValue.substring(0, maxLength);
+          }
+
+          // Actualiza el valor con la máscara aplicada
+          this.formData.identification = rawAlphaNumericValue;
+          break;
+
+        case "#-####-#####,PE-####-#####,1AV-####-#####,1PI-####-#####": // Múltiples máscaras
+          let rawVal = this.formData.identification.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+
+          // Lógica para seleccionar la máscara según el primer carácter o caracteres
+          let maskedVal = '';
+          let rawInde = 0;
+
+          // Condiciones para determinar qué máscara aplicar según el valor ingresado
+          if (rawVal.length > 0) {
+            const firstChar = rawVal[0].toUpperCase(); // Primer carácter
+
+            if (firstChar === 'P') {
+              // Si empieza con 'P' usamos la máscara PE-####-#####
+              let maxLength = 13;  // La longitud máxima permitida con la máscara PE-####-#####
+              maskedVal = 'PE-';
+              rawInde = 2; // Comenzamos después de 'PE-'
+
+              // Solo agregar los guiones si hay números
+              if (rawVal.length > 1) {
+                for (let i = 0; i < 4; i++) {
+                  if (rawInde < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 4 números después de 'PE-'
+                  } else {
+                    break;
+                  }
+                }
+                maskedVal += '-'; // Se agrega guion solo después de los primeros 4 números
+                for (let i = 0; i < 5; i++) {
+                  if (rawInde < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 5 siguientes números
+                  } else {
+                    break;
+                  }
+                }
+
+              } else {
+                // Si solo hay una "P", no agregamos un guion extra
+                maskedVal = 'PE';
+              }
+
+              // Si el valor supera la longitud máxima, cortarlo
+              if (maskedVal.length > maxLength) {
+                maskedVal = maskedVal.substring(0, maxLength);
+              }
+              this.currentMaskPa = 'PE-####-#####';
+
+            } else if (firstChar === '1') {
+              const secondChar = rawVal[1].toUpperCase(); // Verificamos el segundo carácter (para 1A y 1P)
+
+              if (secondChar === 'A') {
+                // Si empieza con '1A' usamos la máscara 1AV-####-#####
+                maskedVal = '1AV-';
+                rawIndex = 4; // Comenzamos después de '1AV-'
+                for (let i = 0; i < 4; i++) {
+                  if (rawIndex < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 4 números después de '1AV-'
+                  } else {
+                    break;
+                  }
+                }
+                maskedVal += '-';
+                for (let i = 0; i < 5; i++) {
+                  if (rawInde < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 5 siguientes números
+                  } else {
+                    break;
+                  }
+                }
+              } else if (secondChar === 'P') {
+                // Si empieza con '1P' usamos la máscara 1PI-####-#####
+                maskedVal = '1PI-';
+                rawInde = 4; // Comenzamos después de '1PI-'
+                for (let i = 0; i < 4; i++) {
+                  if (rawInde < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 4 números después de '1PI-'
+                  } else {
+                    break;
+                  }
+                }
+                maskedVal += '-';
+                for (let i = 0; i < 5; i++) {
+                  if (rawInde < rawVal.length) {
+                    maskedVal += rawVal[rawInde++]; // Agrega los 5 siguientes números
+                  } else {
+                    break;
+                  }
+                }
+              }
+            } else if (!isNaN(Number(firstChar))) {
+              // Si comienza con un número, usa la máscara #-####-#####
+              maskedVal = rawVal.substring(0, 1) + '-'; // Primer carácter y guion
+              rawInde = 1;
+              for (let i = 0; i < 4; i++) {
+                if (rawInde < rawVal.length) {
+                  maskedVal += rawVal[rawInde++]; // Agrega los 4 primeros números
+                } else {
+                  break;
+                }
+              }
+              maskedVal += '-';
+              for (let i = 0; i < 5; i++) {
+                if (rawInde < rawVal.length) {
+                  maskedVal += rawVal[rawInde++]; // Agrega los 5 siguientes números
+                } else {
+                  break;
+                }
+              }
+            }
+          }
+
+          // Asignar el valor con la máscara aplicada
+          this.formData.identification = maskedVal;
+          break;
+
       }
     }
 
@@ -193,7 +323,7 @@ export class ReportarPagoComponent {
 
       const inputId = this.formData.identification;
 
-      switch (validMask) {
+      switch (this.currentMaskPa) {
         case "E-####-######": // Cédula de Residencia
           if (!/^E-\d{4}-\d{6}$/.test(inputId)) {
             this.identificationError = 'El formato debe ser "E-####-######"';
@@ -233,6 +363,13 @@ export class ReportarPagoComponent {
           if (!/^[A-Za-z0-9]{15}$/.test(inputId)) {
             this.identificationError = 'El pasaporte debe tener exactamente 15 caracteres alfanuméricos.';
             return false;
+          }
+          break;
+
+        case "#-####-#####,PE-####-#####,1AV-####-#####,1PI-####-#####": // Identificación Nacional (Formato 3)
+          if (!/^1AV-\d{4}-\d{5}$/.test(inputId)) {
+            // this.identificationError = 'El formato debe ser "PE-####-#####"';
+            // return false;
           }
           break;
 
@@ -374,29 +511,77 @@ export class ReportarPagoComponent {
       // Contamos los caracteres '#' y '-' en la máscara
       return (this.currentMask.match(/[#-]/g) || []).length;
     } else {
-      if (!this.currentMask) {
+      if (!this.currentMaskPa) {
         return 0;
       }
 
-      switch (this.currentMask) {
-        case "E-####-######":  // Cédula de Residencia
-          return 13; // "E-1234-123456" (1 letra + 2 guiones + 10 números)
-
-        case "#-####-#####":  // Identificación Nacional (Formato 1)
-        case "PE-####-#####": // Identificación Nacional (Formato 2)
-        case "1AV-####-#####": // Identificación Nacional (Formato 3)
-        case "1PI-####-#####": // Identificación Nacional (Formato 4)
-          return 14; // "X-1234-12345" (1-2 letras + 2 guiones + 9 números)
-
-        case "AAAAAAAAAAAAAAA": // Pasaporte
-          return 15; // 15 caracteres alfanuméricos
-
-        default:
-          return (this.currentMask.match(/[#-A-Za-z]/g) || []).length; // Cálculo genérico
+      switch (this.currentMaskPa) {
+        case "E-####-######":
+          return 13;
+        case "PE-####-#####":
+          return 13;
+        case "AAAAAAAAAAAAAAA":
+          return 15;
+        default: return 50;
       }
     }
   }
 
+
+    // Método para ejecutar la API al hacer focusout en el campo de identificación
+    onIdentificationFocusOut() {
+      const cedula = this.formData.identification.replace(/-/g, '');
+  
+      if (this.validateIdentification()) {
+        const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
+        const requestBody = {
+          pais: this.pais,
+          cedula: cedula
+        };
+  
+        this.http.post(apiUrl, requestBody).subscribe({
+          next: (response: any) => {
+            console.log('Respuesta de la API:', response);
+  
+            // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
+            if (response.success && response.data && response.data.length > 0) {
+              // this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
+  
+              // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
+              this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
+  
+              // Si solo hay un valor, lo asignamos directamente al campo de operación
+              if (this.operations.length === 1) {
+                this.formData.operation = this.operations[0];
+              }
+            } else {
+              Swal.fire({
+                title: 'Informativo',
+                text: 'El número de identificación ingresado no posee créditos activos.',
+                icon: 'info'
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  this.formData.amountPaid = null;
+                  this.formData.operation = '';
+                  this.operations = [];
+                  this.formData.referenceNumber = null;
+                  this.formData.paymentDate = '';
+                }
+              });
+            }
+            this.validateOperation();
+          },
+          error: () => {
+            Swal.fire({
+              title: 'Error',
+              text: 'Se presentó un inconveniente al consultar la cédula, por favor intentelo más tarde.',
+              icon: 'error',
+            })
+          }
+        });
+      }
+  
+    }
 
 
   // Método para el envío de datos
@@ -472,58 +657,5 @@ export class ReportarPagoComponent {
     }
   }
 
-  // Método para ejecutar la API al hacer focusout en el campo de identificación
-  onIdentificationFocusOut() {
-    const cedula = this.formData.identification.replace(/-/g, '');
 
-    if (this.validateIdentification()) {
-      const apiUrl = 'http://localhost:5154/ReportePagos/Pagos';
-      const requestBody = {
-        pais: this.pais,
-        cedula: cedula
-      };
-
-      this.http.post(apiUrl, requestBody).subscribe({
-        next: (response: any) => {
-          console.log('Respuesta de la API:', response);
-
-          // Si la respuesta es exitosa, actualizamos el campo de monto pagado con el valor_obligacion
-          if (response.success && response.data && response.data.length > 0) {
-            // this.formData.amountPaid = response.data[0].valor_obligacion; // Asignamos el valor de la obligación
-
-            // Llenamos el arreglo de operaciones con el formato "comprobante-numero"
-            this.operations = response.data.map((item: { comprobante: string, numero: number }) => `${item.comprobante}-${item.numero}`);
-
-            // Si solo hay un valor, lo asignamos directamente al campo de operación
-            if (this.operations.length === 1) {
-              this.formData.operation = this.operations[0];
-            }
-          } else {
-            Swal.fire({
-              title: 'Informativo',
-              text: 'El número de identificación ingresado no posee créditos activos.',
-              icon: 'info'
-            }).then((result) => {
-              if (result.isConfirmed) {
-                this.formData.amountPaid = null;
-                this.formData.operation = '';
-                this.operations = [];
-                this.formData.referenceNumber = null;
-                this.formData.paymentDate = '';
-              }
-            });
-          }
-          this.validateOperation();
-        },
-        error: () => {
-          Swal.fire({
-            title: 'Error',
-            text: 'Se presentó un inconveniente al consultar la cédula, por favor intentelo más tarde.',
-            icon: 'error',
-          })
-        }
-      });
-    }
-
-  }
 }
