@@ -291,8 +291,6 @@ export class ReportarPagoComponent {
           ? new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })
             .format(new Date(this.formData.paymentDate + 'T00:00:00'))
           : null,
-        LugarDeposito: "INSTACREDIT",
-        PuntoPago: "PRUEBA A3C",
         NoComprobante: this.formData.referenceNumber
       };
 
