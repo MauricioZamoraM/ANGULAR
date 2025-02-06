@@ -39,7 +39,7 @@ export class ReportarPagoComponent {
   today: string = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: '2-digit', day: '2-digit' })
     .split('/').reverse().join('-');
 
-  pais: number = 1;
+  pais: number = 3;
 
 
   constructor(private http: HttpClient) { }
@@ -80,7 +80,11 @@ export class ReportarPagoComponent {
   updateMask() {
     if (this.pais != 3) {
       const selectedType = this.formData.identificationType;
-      this.currentMask = this.documentMasks[selectedType] || '';
+      this.currentMask = this.documentMasks[selectedType] || ''; // Define la máscara actual
+      this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
+    } else {
+      const selectedType = this.formData.identificationType;
+      this.currentMask = this.documentMasks[selectedType] || ''; // Define la máscara actual
       this.formData.identification = ''; // Reinicia el campo al cambiar de tipo
     }
   }
@@ -114,30 +118,134 @@ export class ReportarPagoComponent {
 
       // Actualiza el valor con la máscara aplicada
       this.formData.identification = maskedValue;
+    } else {
+      switch (this.currentMask) {
+        case "E-####-######":  // Cédula de Residencia de Panamá
+          let rawValue = this.formData.identification.replace(/\D/g, ''); // Solo números
+          let maskedValue = 'E-'; // Agrega el prefijo "E-" al inicio
+          let rawIndex = 0;
+
+          // Verifica que el valor ingrese solo números después de "E-"
+          const maskPattern = this.currentMask.split('');
+
+          // Aplica la máscara
+          for (let i = 2; i < maskPattern.length; i++) { // Empezamos desde el índice 2 para evitar sobrescribir "E-"
+            if (maskPattern[i] === '#') {
+              if (rawIndex < rawValue.length) {
+                maskedValue += rawValue[rawIndex++]; // Agrega el siguiente número
+              } else {
+                break; // Si ya no hay más números, termina
+              }
+            } else {
+              maskedValue += maskPattern[i]; // Agrega el guion o cualquier otro carácter fijo
+            }
+          }
+
+          // Evita que el usuario ingrese más caracteres de los permitidos
+          if (rawValue.length > this.getMaxLength()) {
+            rawValue = rawValue.substring(0, this.getMaxLength());
+          }
+
+          // Actualiza el valor con la máscara aplicada
+          this.formData.identification = maskedValue;
+          break;
+      }
     }
 
   }
 
   // Método para validar la identificación según la máscara
   validateIdentification() {
-    if (!this.formData.identification) {
-      this.identificationError = 'Campo requerido';
-      return false;
-    } else {
+    if (this.pais !== 3) {
+      if (!this.formData.identification) {
+        this.identificationError = 'Campo requerido';
+        return false;
+      }
+
       const selectedType = this.formData.identificationType;
       const validMask = this.documentMasks[selectedType];
-      //Obtener la mascara y la cedula ingresada en el input, si ambas tienen la misma longitud no mostrar error
 
-      // Verifica si la identificación cumple con la máscara
+      if (!validMask) {
+        this.identificationError = 'Tipo de documento no válido';
+        return false;
+      }
+
       if (validMask.length !== this.formData.identification.length) {
         this.identificationError = 'Verifique que el número de identificación ingresado sea el correcto o que el tipo de documento sea el adecuado.';
         return false;
-      } else {
-        this.identificationError = null;
-        return true;
       }
+
+      this.identificationError = null;
+      return true;
+    } else {
+      if (!this.formData.identification || this.formData.identification === "E-") {
+        this.identificationError = 'Campo requerido';
+        return false;
+      }
+
+      const selectedType = this.formData.identificationType;
+      const validMask = this.documentMasks[selectedType];
+
+      if (!validMask) {
+        this.identificationError = 'Tipo de documento no válido';
+        return false;
+      }
+
+      const inputId = this.formData.identification;
+
+      switch (validMask) {
+        case "E-####-######": // Cédula de Residencia
+          if (!/^E-\d{4}-\d{6}$/.test(inputId)) {
+            this.identificationError = 'El formato debe ser "E-####-######"';
+            return false;
+          }
+          break;
+
+        case "#-####-#####": // Identificación Nacional (Formato 1)
+          if (!/^\d-\d{4}-\d{5}$/.test(inputId)) {
+            this.identificationError = 'El formato debe ser "#-####-#####"';
+            return false;
+          }
+          break;
+
+        case "PE-####-#####": // Identificación Nacional (Formato 2)
+          if (!/^PE-\d{4}-\d{5}$/.test(inputId)) {
+            this.identificationError = 'El formato debe ser "PE-####-#####"';
+            return false;
+          }
+          break;
+
+        case "1AV-####-#####": // Identificación Nacional (Formato 3)
+          if (!/^1AV-\d{4}-\d{5}$/.test(inputId)) {
+            this.identificationError = 'El formato debe ser "1AV-####-#####"';
+            return false;
+          }
+          break;
+
+        case "1PI-####-#####": // Identificación Nacional (Formato 4)
+          if (!/^1PI-\d{4}-\d{5}$/.test(inputId)) {
+            this.identificationError = 'El formato debe ser "1PI-####-#####"';
+            return false;
+          }
+          break;
+
+        case "AAAAAAAAAAAAAAA": // Pasaporte (alfanumérico de 15 caracteres)
+          if (!/^[A-Za-z0-9]{15}$/.test(inputId)) {
+            this.identificationError = 'El pasaporte debe tener exactamente 15 caracteres alfanuméricos.';
+            return false;
+          }
+          break;
+
+        default:
+          this.identificationError = 'Formato no reconocido.';
+          return false;
+      }
+
+      this.identificationError = null;
+      return true;
     }
   }
+
 
   validateReferenceNumber() {
     if (!this.formData.referenceNumber) {
@@ -185,7 +293,6 @@ export class ReportarPagoComponent {
 
     // Reiniciar mensajes de error
     this.identificationTypeError = '';
-    this.identificationError = '';
     this.operacionError = '';
     this.referenciaError = '';
     this.fechaPagoError = '';
@@ -196,11 +303,17 @@ export class ReportarPagoComponent {
       this.identificationTypeError = 'Campo requerido';
       isValid = false;
     }
-
-    // Validar Identificación
-    if (!this.formData.identification) {
-      this.identificationError = 'Campo requerido';
-      isValid = false;
+    if (this.pais !== 3) {
+      // Validar Identificación
+      if (!this.formData.identification && !this.identificationError) {
+        this.identificationError = 'Campo requerido';
+        isValid = false;
+      }
+    } else {
+      if ((!this.formData.identification || this.formData.identification === "E-") && !this.identificationError) {
+        this.identificationError = 'Campo requerido';
+        isValid = false;
+      }
     }
 
     // Validar Operación
@@ -254,20 +367,36 @@ export class ReportarPagoComponent {
 
   getMaxLength(): number {
     if (this.pais != 3) {
-      // Revisamos si this.currentMask tiene un valor válido
       if (!this.currentMask) {
         return 0;
       }
 
-      // Contamos tanto los caracteres '#' como los '-'
-      const maxLength = (this.currentMask.match(/[#-]/g) || []).length;
-
-      return maxLength;
+      // Contamos los caracteres '#' y '-' en la máscara
+      return (this.currentMask.match(/[#-]/g) || []).length;
     } else {
-      return 50;
-    }
+      if (!this.currentMask) {
+        return 0;
+      }
 
+      switch (this.currentMask) {
+        case "E-####-######":  // Cédula de Residencia
+          return 13; // "E-1234-123456" (1 letra + 2 guiones + 10 números)
+
+        case "#-####-#####":  // Identificación Nacional (Formato 1)
+        case "PE-####-#####": // Identificación Nacional (Formato 2)
+        case "1AV-####-#####": // Identificación Nacional (Formato 3)
+        case "1PI-####-#####": // Identificación Nacional (Formato 4)
+          return 14; // "X-1234-12345" (1-2 letras + 2 guiones + 9 números)
+
+        case "AAAAAAAAAAAAAAA": // Pasaporte
+          return 15; // 15 caracteres alfanuméricos
+
+        default:
+          return (this.currentMask.match(/[#-A-Za-z]/g) || []).length; // Cálculo genérico
+      }
+    }
   }
+
 
 
   // Método para el envío de datos
@@ -386,8 +515,12 @@ export class ReportarPagoComponent {
           }
           this.validateOperation();
         },
-        error: (error) => {
-          console.error('❌ Error al consultar la cédula:', error);
+        error: () => {
+          Swal.fire({
+            title: 'Error',
+            text: 'Se presentó un inconveniente al consultar la cédula, por favor intentelo más tarde.',
+            icon: 'error',
+          })
         }
       });
     }
